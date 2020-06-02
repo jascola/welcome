@@ -23,7 +23,7 @@ public class TestController {
         modelAndView.setViewName("index");
         modelAndView.addObject("title","测试");
         modelAndView.addObject("entities",testDao.getTestEntity());
-        //logger.info(testDao.getTestEntity());
+        logger.info(testDao.getTestEntity());
         return modelAndView;
     }
 }
