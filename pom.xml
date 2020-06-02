@@ -58,6 +58,11 @@
 			<artifactId>joda-money</artifactId>
 			<version>LATEST</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper-spring-boot-starter</artifactId>
+			<version>LATEST</version>
+		</dependency>
 	</dependencies>
 
 	<build>

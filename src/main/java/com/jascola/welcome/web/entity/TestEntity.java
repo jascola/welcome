@@ -8,7 +8,7 @@ import org.joda.money.Money;
 @Getter
 @Setter
 @ToString
-public class TestEntity {
+public class TestEntity extends BaseEntity{
     private Long id;
     private Money myMoney;
     private String userName;

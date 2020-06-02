@@ -3,7 +3,15 @@
 <mapper namespace="com.jascola.welcome.web.dao.TestDao">
 
 
+    <select id="getTestEntityAll" resultType="com.jascola.welcome.web.entity.TestEntity">
+        select ID,USER_NAME,MY_MONEY  from t_test
+    </select>
+
     <select id="getTestEntity" resultType="com.jascola.welcome.web.entity.TestEntity">
+        select ID,USER_NAME,MY_MONEY  from t_test
+    </select>
+
+    <select id="getTestEntityRow" resultType="com.jascola.welcome.web.entity.TestEntity">
         select ID,USER_NAME,MY_MONEY  from t_test
     </select>
 

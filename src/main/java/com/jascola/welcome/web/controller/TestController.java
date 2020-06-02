@@ -1,7 +1,9 @@
 package com.jascola.welcome.web.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.jascola.welcome.web.dao.TestDao;
 import com.jascola.welcome.web.entity.TestEntity;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.money.CurrencyUnit;
@@ -28,9 +30,12 @@ public class TestController {
         TestEntity testEntity = new TestEntity();
         testEntity.setMyMoney(Money.of(CurrencyUnit.of("CNY"), 100000000L));
         testEntity.setUserName("jascola");
-        testDao.insert(testEntity);
-        modelAndView.addObject("entities",testDao.getTestEntity());
-        logger.info(testDao.getTestEntity());
+        testEntity.setPageNum(1);
+        testEntity.setPageSize(1);
+        //testDao.insert(testEntity);
+        modelAndView.addObject("entities",testDao.getTestEntity(testEntity));
+        logger.info(new PageInfo<>(testDao.getTestEntity(testEntity)));
+        logger.info(testDao.getTestEntityRow(new RowBounds(1,1)));
         return modelAndView;
     }
 }
