@@ -4,6 +4,10 @@
 
 
     <select id="getTestEntity" resultType="com.jascola.welcome.web.entity.TestEntity">
-        select ID id from t_test
+        select ID,USER_NAME,MY_MONEY  from t_test
     </select>
+
+    <insert id="insert" parameterType="com.jascola.welcome.web.entity.TestEntity">
+        insert into t_test (USER_NAME, MY_MONEY) values (#{userName},#{myMoney})
+    </insert>
 </mapper>
