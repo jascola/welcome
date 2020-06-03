@@ -30,8 +30,7 @@ public class TestController {
         TestEntity testEntity = new TestEntity();
         testEntity.setMyMoney(Money.of(CurrencyUnit.of("CNY"), 100000000L));
         testEntity.setUserName("jascola");
-        testEntity.setPageNum(1);
-        testEntity.setPageSize(1);
+        testEntity.setPageParam(1,1);
         //testDao.insert(testEntity);
         modelAndView.addObject("entities",testDao.getTestEntity(testEntity));
         logger.info(new PageInfo<>(testDao.getTestEntity(testEntity)));
