@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -66,5 +67,24 @@ public class TestController {
             redisTemplate.expire("test-ket",1, TimeUnit.MINUTES);
             return "jsonString";
         }
+    }
+
+    @RequestMapping("/reactor")
+    @ResponseBody
+    public String reactor(){
+        Flux.just("jascola","linda","mother","xi")
+                .doOnRequest(n->logger.info("on request----{}",n))
+                .filter(n-> n.length()>3 && n.length()<10)
+                .map(n->{
+                    if(n.length()<10){
+                       n = n+"good luck";
+                    }
+                    logger.info("map value----{}",n);
+                    return n;
+                }).subscribe(n->logger.info("reactor----{}",n),
+                e->logger.info("exception----{}",e.toString()),
+                ()->logger.info("subscriber complete"),
+                s->s.request(10));
+        return  "success";
     }
 }
