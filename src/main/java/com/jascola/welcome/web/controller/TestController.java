@@ -30,9 +30,10 @@ import java.util.concurrent.TimeUnit;
 public class TestController {
 
     private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
-    private final RedisTemplate<String,String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final TestDao testDao;
     private Logger logger = LogManager.getLogger("com.jascola.welcome.web.controller.TestController");
+
     @Autowired
     public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate) {
         this.testDao = testDao;
@@ -41,77 +42,77 @@ public class TestController {
     }
 
     @RequestMapping("/index")
-    public ModelAndView index(){
+    public ModelAndView index() {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("index");
-        modelAndView.addObject("title","测试");
+        modelAndView.addObject("title", "测试");
         TestEntity testEntity = new TestEntity();
         testEntity.setMyMoney(Money.of(CurrencyUnit.of("CNY"), 100000000L));
         testEntity.setUserName("jascola");
-        testEntity.setPageParam(1,1);
+        testEntity.setPageParam(1, 1);
         //testDao.insert(testEntity);
-        modelAndView.addObject("entities",testDao.getTestEntity(testEntity));
+        modelAndView.addObject("entities", testDao.getTestEntity(testEntity));
         logger.info(new PageInfo<>(testDao.getTestEntity(testEntity)));
-        logger.info(testDao.getTestEntityRow(new RowBounds(1,1)));
+        logger.info(testDao.getTestEntityRow(new RowBounds(1, 1)));
         return modelAndView;
     }
 
     @RequestMapping("/redis")
     @ResponseBody
-    public String redis(){
+    public String redis() {
         TestEntity testEntity = new TestEntity();
         testEntity.setMyMoney(Money.of(CurrencyUnit.of("CNY"), 100000000L));
         testEntity.setUserName("jascola");
-        testEntity.setPageParam(1,1);
+        testEntity.setPageParam(1, 1);
         //testDao.insert(testEntity);
         List<TestEntity> list = testDao.getTestEntity(testEntity);
-        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         String value = valueOperations.get("test-ket");
-        if(StringUtils.isNotBlank(value)){
+        if (StringUtils.isNotBlank(value)) {
             redisTemplate.delete("test-ket");
             logger.info("test-ket");
             return value;
-        }else{
-            valueOperations.set("test-ket","jsonString");
-            redisTemplate.expire("test-ket",1, TimeUnit.MINUTES);
+        } else {
+            valueOperations.set("test-ket", "jsonString");
+            redisTemplate.expire("test-ket", 1, TimeUnit.MINUTES);
             return "jsonString";
         }
     }
 
     @RequestMapping("/reactor")
     @ResponseBody
-    public String reactor(){
-        Flux.just("jascola","linda","mother","xi")
+    public String reactor() {
+        Flux.just("jascola", "linda", "mother", "xi")
                 .publishOn(Schedulers.elastic())
-                .doOnRequest(n->logger.info("on request----{}",n))
-                .filter(n-> n.length()>3 && n.length()<10)
-                .map(n->{
-                    if(n.length()<10){
-                       n = n+"good luck";
+                .doOnRequest(n -> logger.info("on request----{}", n))
+                .filter(n -> n.length() > 3 && n.length() < 10)
+                .map(n -> {
+                    if (n.length() < 10) {
+                        n = n + "good luck";
                     }
-                    logger.info("map thread----{}",Thread.currentThread());
+                    logger.info("map thread----{}", Thread.currentThread());
                     return n;
                 })
                 .subscribeOn(Schedulers.single())
-                .subscribe(n->logger.info("reactor----{}",n),
-                e->logger.info("exception----{}",e.toString()),
-                ()->logger.info("subscriber complete"),
-                s->s.request(2));
-        return  "success";
+                .subscribe(n -> logger.info("reactor----{}", n),
+                        e -> logger.info("exception----{}", e.toString()),
+                        () -> logger.info("subscriber complete"),
+                        s -> s.request(2));
+        return "success";
     }
 
     @RequestMapping("/reactive/redis")
     @ResponseBody
-    public String reactiveRedis() throws Exception{
-        ReactiveHashOperations<String,String,String> hashOperations = reactiveStringRedisTemplate.opsForHash();
+    public String reactiveRedis() throws Exception {
+        ReactiveHashOperations<String, String, String> hashOperations = reactiveStringRedisTemplate.opsForHash();
         List<TestEntity> list = testDao.getTestEntityAll();
-        CountDownLatch cld  = new CountDownLatch(1);
+        CountDownLatch cld = new CountDownLatch(1);
         Flux.fromIterable(list)
                 .publishOn(Schedulers.single())
-                .doOnComplete(()->logger.info("list complete"))
-                .flatMap(n-> hashOperations.put("redis-key",n.getId()+"",n.getUserName()))
-                .concatWith(reactiveStringRedisTemplate.expire("redis-key",Duration.ofMinutes(1)))
-                .subscribe(b->logger.info("flux value----{}",b),e->logger.info("error--{}",e), cld::countDown);
+                .doOnComplete(() -> logger.info("list complete"))
+                .flatMap(n -> hashOperations.put("redis-key", n.getId() + "", n.getUserName()))
+                .concatWith(reactiveStringRedisTemplate.expire("redis-key", Duration.ofMinutes(1)))
+                .subscribe(b -> logger.info("flux value----{}", b), e -> logger.info("error--{}", e), cld::countDown);
 
         logger.info("waiting----");
         cld.await();
