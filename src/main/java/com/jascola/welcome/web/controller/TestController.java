@@ -9,6 +9,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ReactiveHashOperations;
+import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
@@ -16,19 +19,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.List;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @Controller
 public class TestController {
 
+    private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
     private final RedisTemplate<String,String> redisTemplate;
     private final TestDao testDao;
     private Logger logger = LogManager.getLogger("com.jascola.welcome.web.controller.TestController");
-    public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate) {
+    @Autowired
+    public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate) {
         this.testDao = testDao;
         this.redisTemplate = redisTemplate;
+        this.reactiveStringRedisTemplate = reactiveStringRedisTemplate;
     }
 
     @RequestMapping("/index")
@@ -73,18 +82,39 @@ public class TestController {
     @ResponseBody
     public String reactor(){
         Flux.just("jascola","linda","mother","xi")
+                .publishOn(Schedulers.elastic())
                 .doOnRequest(n->logger.info("on request----{}",n))
                 .filter(n-> n.length()>3 && n.length()<10)
                 .map(n->{
                     if(n.length()<10){
                        n = n+"good luck";
                     }
-                    logger.info("map value----{}",n);
+                    logger.info("map thread----{}",Thread.currentThread());
                     return n;
-                }).subscribe(n->logger.info("reactor----{}",n),
+                })
+                .subscribeOn(Schedulers.single())
+                .subscribe(n->logger.info("reactor----{}",n),
                 e->logger.info("exception----{}",e.toString()),
                 ()->logger.info("subscriber complete"),
-                s->s.request(10));
+                s->s.request(2));
         return  "success";
+    }
+
+    @RequestMapping("/reactive/redis")
+    @ResponseBody
+    public String reactiveRedis() throws Exception{
+        ReactiveHashOperations<String,String,String> hashOperations = reactiveStringRedisTemplate.opsForHash();
+        List<TestEntity> list = testDao.getTestEntityAll();
+        CountDownLatch cld  = new CountDownLatch(1);
+        Flux.fromIterable(list)
+                .publishOn(Schedulers.single())
+                .doOnComplete(()->logger.info("list complete"))
+                .flatMap(n-> hashOperations.put("redis-key",n.getId()+"",n.getUserName()))
+                .concatWith(reactiveStringRedisTemplate.expire("redis-key",Duration.ofMinutes(1)))
+                .subscribe(b->logger.info("flux value----{}",b),e->logger.info("error--{}",e), cld::countDown);
+
+        logger.info("waiting----");
+        cld.await();
+        return "success";
     }
 }
