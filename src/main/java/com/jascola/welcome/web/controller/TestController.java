@@ -93,8 +93,7 @@ public class TestController {
                     logger.info("map thread----{}", Thread.currentThread());
                     return n;
                 })
-                .subscribeOn(Schedulers.single())
-                .subscribe(n -> logger.info("reactor----{}", n),
+                .subscribe(n -> logger.info("reactor----{}----{}", n,Thread.currentThread().getName()),
                         e -> logger.info("exception----{}", e.toString()),
                         () -> logger.info("subscriber complete"),
                         s -> s.request(2));
@@ -112,7 +111,7 @@ public class TestController {
                 .doOnComplete(() -> logger.info("list complete"))
                 .flatMap(n -> hashOperations.put("redis-key", n.getId() + "", n.getUserName()))
                 .concatWith(reactiveStringRedisTemplate.expire("redis-key", Duration.ofMinutes(1)))
-                .subscribe(b -> logger.info("flux value----{}", b), e -> logger.info("error--{}", e), cld::countDown);
+                .subscribe(b -> logger.info("flux value----{}----{}", b,Thread.currentThread().getName()), e -> logger.info("error--{}", e), cld::countDown);
 
         logger.info("waiting----");
         cld.await();
