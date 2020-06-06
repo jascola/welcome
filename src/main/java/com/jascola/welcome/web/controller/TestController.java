@@ -36,15 +36,14 @@ public class TestController {
     private final TestDao testDao;
     private Logger logger = LogManager.getLogger("com.jascola.welcome.web.controller.TestController");
 
-    @Qualifier("testY")
-    @Autowired
-    private TestBean bean;
+    private final TestBean bean;
 
     @Autowired
-    public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate) {
+    public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate, @Qualifier("testBeanY") TestBean bean) {
         this.testDao = testDao;
         this.redisTemplate = redisTemplate;
         this.reactiveStringRedisTemplate = reactiveStringRedisTemplate;
+        this.bean = bean;
     }
 
     @RequestMapping("/index")
