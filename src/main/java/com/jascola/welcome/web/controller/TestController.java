@@ -68,7 +68,7 @@ public class TestController {
         List<TestEntity> list = testDao.getTestEntity(testEntity);
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         String value = valueOperations.get("test-ket");
-        if (StringUtils.isNotEmpty(value)) {
+        if (StringUtils.isNotBlank(value)) {
             redisTemplate.delete("test-ket");
             logger.info("test-ket");
             return value;
