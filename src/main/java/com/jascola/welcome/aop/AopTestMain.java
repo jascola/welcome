@@ -12,13 +12,13 @@ public class AopTestMain {
         ApplicationContext apy = new AnnotationConfigApplicationContext(BarConfig.class);
         ((AnnotationConfigApplicationContext) apy).setParent(apx);
 
-        TestBean bean = apx.getBean("testX",TestBean.class);
+        TestBean bean = apx.getBean("testBeanX",TestBean.class);
         bean.say();
 
-        bean = apy.getBean("testX",TestBean.class);
+        bean = apy.getBean("testBeanX",TestBean.class);
         bean.say();
 
-        bean = apy.getBean("testY",TestBean.class);
+        bean = apy.getBean("testBeanY",TestBean.class);
         bean.say();
     }
 }

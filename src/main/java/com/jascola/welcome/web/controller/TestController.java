@@ -1,6 +1,7 @@
 package com.jascola.welcome.web.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.jascola.welcome.aop.TestBean;
 import com.jascola.welcome.web.dao.TestDao;
 import com.jascola.welcome.web.entity.TestEntity;
 import org.apache.commons.lang.StringUtils;
@@ -10,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,6 +35,10 @@ public class TestController {
     private final RedisTemplate<String, String> redisTemplate;
     private final TestDao testDao;
     private Logger logger = LogManager.getLogger("com.jascola.welcome.web.controller.TestController");
+
+    @Qualifier("testY")
+    @Autowired
+    private TestBean bean;
 
     @Autowired
     public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate) {
@@ -115,6 +121,13 @@ public class TestController {
 
         logger.info("waiting----");
         cld.await();
+        return "success";
+    }
+
+    @RequestMapping("/aspect")
+    @ResponseBody
+    public String aspect(){
+        bean.say();
         return "success";
     }
 }

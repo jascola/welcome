@@ -10,7 +10,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy
 public class BarConfig {
 
-    @Bean("testX")
+    @Bean("testBeanX")
     public TestBean testX(){
         return new TestBean("bar");
     }

@@ -8,7 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 @Aspect
 public class AspectTest {
     private Logger logger = LogManager.getLogger("com.jascola.welcome.aop.AspectTest");
-    @AfterReturning("bean(test*)")
+    @AfterReturning("bean(testBean*)")
     public void sayAfter(){
         logger.info("aspect has worked");
     }
