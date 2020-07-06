@@ -2,10 +2,12 @@ spring:
   datasource:
     username: root
     password: 123456
-    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    url: jdbc:mysql://192.168.0.100:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
-    host: localhost
+    sentinel:
+      master: mymaster
+      nodes: 192.168.0.100:26379,192.168.0.100:26380,192.168.0.100:26381
     lettuce:
       pool:
         max-active: 8
