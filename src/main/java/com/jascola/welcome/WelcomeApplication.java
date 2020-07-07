@@ -33,6 +33,9 @@ public class WelcomeApplication extends SpringBootServletInitializer {
         return new ReactiveStringRedisTemplate(reactiveRedisConnectionFactory);
     }
 
+    /**
+     * 打成war包 需要继承 SpringBootServletInitializer
+     * */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder  application){
         return application.sources(WelcomeApplication.class);
