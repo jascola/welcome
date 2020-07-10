@@ -4,6 +4,7 @@ services:
     container_name: redis_6379
     image: redis
     command : redis-server /etc/redis/redis.conf
+    hostname : redis-master
     volumes:
        - /file/docker/redis/redis-node1.conf:/etc/redis/redis.conf
     ports:
@@ -19,8 +20,7 @@ services:
     ports:
        - "6380:6379"
     restart: always
-    depends_on:
-       - redis-master
+
 
   redis-salve2:
     container_name: redis_6381
@@ -31,8 +31,7 @@ services:
     ports:
        - "6381:6379"
     restart: always
-    depends_on:
-       - redis-master
+
 
   redis-sentinel-1:
     container_name: sentine-1
@@ -43,9 +42,6 @@ services:
     ports:
        - "26379:26379"
     restart: always
-    depends_on:
-       - redis-master
-
 
   redis-sentinel-2:
     container_name: sentine-2
@@ -56,8 +52,7 @@ services:
     ports:
        - "26380:26379"
     restart: always
-    depends_on:
-       - redis-master
+
 
   redis-sentinel-3:
     container_name: sentine-3
@@ -68,8 +63,6 @@ services:
     ports:
        - "26381:26379"
     restart: always
-    depends_on:
-       - redis-master
 
 
   mysql:
@@ -80,8 +73,6 @@ services:
     restart: always
     environment:
        - MYSQL_ROOT_PASSWORD=123456
-    depends_on:
-       - redis-master
 
   tomcat:
     container_name: tomcat
@@ -91,5 +82,33 @@ services:
     ports:
        - "8080:8080"
     restart: always
-    depends_on:
-       - redis-master
+
+  zoo1:
+    image: zookeeper
+    restart: always
+    hostname: zoo1
+    ports:
+       - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+
+  zoo2:
+    image: zookeeper
+    restart: always
+    hostname: zoo2
+    ports:
+        - "2182:2181"
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+
+  zoo3:
+    image: zookeeper
+    restart: always
+    hostname: zoo3
+    ports:
+        - "2183:2181"
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
