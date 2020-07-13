@@ -21,7 +21,7 @@ public class ZkClient {
     private static ZooKeeper zooKeeper =null;
     private static CountDownLatch connectedSemaphore = new CountDownLatch(1);
     @PostConstruct
-    private void init(){
+    private void init() throws InterruptedException {
         try {
             zooKeeper =new ZooKeeper(zkService, 5000, watchedEvent -> {
                 if (Watcher.Event.KeeperState.SyncConnected == watchedEvent.getState()) {  //zk连接成功通知事件
@@ -36,6 +36,8 @@ public class ZkClient {
                     }
                 }
             });
+            connectedSemaphore.await();
+            Thread.sleep(Integer.MAX_VALUE);
         } catch (IOException e) {
             logger.error("{}",e);
         }
