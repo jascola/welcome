@@ -23,7 +23,7 @@ public class ZkClient {
     @PostConstruct
     private void init(){
         try {
-            zooKeeper =new ZooKeeper(zkService, 100, watchedEvent -> {
+            zooKeeper =new ZooKeeper(zkService, 5000, watchedEvent -> {
                 if (Watcher.Event.KeeperState.SyncConnected == watchedEvent.getState()) {  //zk连接成功通知事件
                     if (Watcher.Event.EventType.None == watchedEvent.getType() && null == watchedEvent.getPath()) {
                         connectedSemaphore.countDown();
