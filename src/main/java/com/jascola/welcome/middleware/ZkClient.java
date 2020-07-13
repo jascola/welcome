@@ -14,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 @Component
 public class ZkClient {
 
-    @Value("${zookeeper.service-addr}")
+    @Value("${zookeeper.server-addr}")
     private String zkService;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ZkClient.class);
     private static Stat stat = new Stat();

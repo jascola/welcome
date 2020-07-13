@@ -36,15 +36,13 @@ public class TestController {
     private final TestDao testDao;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestController.class);
     private final TestBean bean;
-    private final ZkClient zkClient;
 
     @Autowired
-    public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate, @Qualifier("testBeanY") TestBean bean, ZkClient zkClient) {
+    public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate, @Qualifier("testBeanY") TestBean bean) {
         this.testDao = testDao;
         this.redisTemplate = redisTemplate;
         this.reactiveStringRedisTemplate = reactiveStringRedisTemplate;
         this.bean = bean;
-        this.zkClient = zkClient;
     }
 
     @RequestMapping("/index")
@@ -128,32 +126,6 @@ public class TestController {
     @ResponseBody
     public String aspect(){
         bean.say();
-        return "success";
-    }
-
-    @RequestMapping("/zk/create")
-    @ResponseBody
-    public String createZkNode(String path){
-        zkClient.createNode(path);
-        return "success";
-    }
-
-    @RequestMapping("/zk/get")
-    @ResponseBody
-    public String getZkNode(String path) {
-        return  zkClient.getNodeData(path);
-    }
-
-    @RequestMapping("/zk/update")
-    @ResponseBody
-    public String updateZkNode(String value,String path) {
-        return  zkClient.updateNodeData(value,path);
-    }
-
-    @RequestMapping("/zk/delete")
-    @ResponseBody
-    public String deleteZkNode(String path) {
-        zkClient.deleteNodeData(path);
         return "success";
     }
 }
