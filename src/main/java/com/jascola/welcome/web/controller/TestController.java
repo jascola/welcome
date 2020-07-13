@@ -6,10 +6,9 @@ import com.jascola.welcome.web.dao.TestDao;
 import com.jascola.welcome.web.entity.TestEntity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joda.money.CurrencyUnit;
 import org.joda.money.Money;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ReactiveHashOperations;
@@ -34,8 +33,7 @@ public class TestController {
     private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
     private final RedisTemplate<String, String> redisTemplate;
     private final TestDao testDao;
-    private Logger logger = LogManager.getLogger("com.jascola.welcome.web.controller.TestController");
-
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestController.class);
     private final TestBean bean;
 
     @Autowired
@@ -57,8 +55,8 @@ public class TestController {
         testEntity.setPageParam(1, 1);
         //testDao.insert(testEntity);
         modelAndView.addObject("entities", testDao.getTestEntity(testEntity));
-        logger.info(new PageInfo<>(testDao.getTestEntity(testEntity)));
-        logger.info(testDao.getTestEntityRow(new RowBounds(1, 1)));
+        logger.info("{}",new PageInfo<>(testDao.getTestEntity(testEntity)));
+        logger.info("{}",testDao.getTestEntityRow(new RowBounds(1, 1)));
         return modelAndView;
     }
 
