@@ -21,3 +21,6 @@ mybatis:
 
 pagehelper:
   offset-as-page-num: true
+
+zookeeper:
+  service-addr: 10.24.19.100:2181,10.24.19.100:2182,10.24.19.100:2183
