@@ -2,7 +2,7 @@ package com.jascola.welcome.web.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.jascola.welcome.aop.TestBean;
-import com.jascola.welcome.middleware.ZkClient;
+import com.jascola.welcome.middleware.RedisClient;
 import com.jascola.welcome.web.dao.TestDao;
 import com.jascola.welcome.web.entity.TestEntity;
 import org.apache.commons.lang.StringUtils;
@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,22 +24,21 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @Controller
 public class TestController {
 
     private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisClient redisClient;
     private final TestDao testDao;
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestController.class);
     private final TestBean bean;
 
     @Autowired
-    public TestController(TestDao testDao, RedisTemplate<String, String> redisTemplate, ReactiveStringRedisTemplate reactiveStringRedisTemplate, @Qualifier("testBeanY") TestBean bean) {
+    public TestController(TestDao testDao, ReactiveStringRedisTemplate reactiveStringRedisTemplate, RedisClient redisClient, @Qualifier("testBeanY") TestBean bean) {
         this.testDao = testDao;
-        this.redisTemplate = redisTemplate;
         this.reactiveStringRedisTemplate = reactiveStringRedisTemplate;
+        this.redisClient = redisClient;
         this.bean = bean;
     }
 
@@ -69,16 +66,14 @@ public class TestController {
         testEntity.setUserName("jascola");
         testEntity.setPageParam(1, 1);
         //testDao.insert(testEntity);
-        List<TestEntity> list = testDao.getTestEntity(testEntity);
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        String value = valueOperations.get("test-ket");
+        String value = redisClient.get("test-ket");
         if (StringUtils.isNotEmpty(value)) {
-            redisTemplate.delete("test-ket");
+            redisClient.delete("test-ket");
             logger.info("test-ket");
             return value;
         } else {
-            valueOperations.set("test-ket", "jsonString");
-            redisTemplate.expire("test-ket", 1, TimeUnit.MINUTES);
+            redisClient.set("test-ket", "jsonString");
+            redisClient.expire("test-ket", 60);
             return "jsonString";
         }
     }

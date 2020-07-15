@@ -11,6 +11,10 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * zooKeeper操作客户端
+ * */
+
 @Component
 public class ZkClient {
 
@@ -20,6 +24,11 @@ public class ZkClient {
     private static Stat stat = new Stat();
     private static ZooKeeper zooKeeper =null;
     private static CountDownLatch connectedSemaphore = new CountDownLatch(1);
+
+    /**
+     * 初始化一个zookeeper实例
+     * 并传入一个监听
+     * */
     @PostConstruct
     private void init() throws InterruptedException {
         try {
@@ -36,13 +45,17 @@ public class ZkClient {
                     }
                 }
             });
-            connectedSemaphore.await();
-            Thread.sleep(Integer.MAX_VALUE);
+            //connectedSemaphore.await();
+            //Thread.sleep(Integer.MAX_VALUE);
         } catch (IOException e) {
             logger.error("{}",e);
         }
     }
 
+    /**
+     * 创建一个节点
+     * zk不支持递归创建节点，即必须先创建/parent ,再创建 /parent/child
+     * */
     public void createNode(String path){
         try {
             path = "/" + path;
@@ -53,6 +66,9 @@ public class ZkClient {
         }
     }
 
+    /**
+     * 获取节点内容
+     * */
     public String getNodeData(String path){
         byte[] data = new byte[0];
         try {
@@ -66,7 +82,7 @@ public class ZkClient {
     }
 
     /**
-     * 更新前需要先获取当前stat信息
+     * 更新前需要先获取当前stat信息，即先执行 get操作初始化stat
      * */
     public String updateNodeData(String value,String path){
         try {
