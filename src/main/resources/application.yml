@@ -25,9 +25,3 @@ pagehelper:
 zookeeper:
   server-addr: 10.24.19.100:2181,10.24.19.100:2182,10.24.19.100:2183
 
-logging:
-  pattern:
-    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n'
-    rolling-file-name: '/usr/local/tomcat/logs/logback.%d{yyyy-MM-dd}.log'
-    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n'
-    level: info
