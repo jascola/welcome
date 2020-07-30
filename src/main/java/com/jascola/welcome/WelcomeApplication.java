@@ -1,5 +1,6 @@
 package com.jascola.welcome;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -15,6 +16,7 @@ import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -23,9 +25,10 @@ import java.net.URI;
 @SpringBootApplication
 public class WelcomeApplication extends SpringBootServletInitializer implements ApplicationRunner {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WelcomeApplication.class);
+
     @Autowired
     private RestTemplate restTemplate;
-
 
     public static void main(String[] args) {
         SpringApplication.run(WelcomeApplication.class, args);
@@ -62,7 +65,7 @@ public class WelcomeApplication extends SpringBootServletInitializer implements 
         URI uri = UriComponentsBuilder.
                 fromUriString("http://10.24.19.100:8080/welcome-0.0.1-SNAPSHOT/index").
                 build().toUri();
-        String str = restTemplate.getForObject(uri,String.class);
-        System.out.println(str);
+        ResponseEntity<String> str = restTemplate.getForEntity(uri,String.class);
+        logger.info("{},{},{}",str.getStatusCodeValue(),str.getHeaders(),str.getBody());
     }
 }
